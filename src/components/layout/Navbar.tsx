@@ -6,8 +6,9 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Menu, X, Heart, Search } from 'lucide-react';
+import { Menu, X, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SearchAutocomplete } from '@/components/features/SearchAutocomplete';
 
 const navLinks = [
     { href: '/', label: 'Home' },
@@ -19,7 +20,6 @@ export function Navbar() {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const handleScroll = () => {
@@ -29,13 +29,6 @@ export function Navbar() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
-
-    const handleSearchSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            router.push(`/browse?q=${encodeURIComponent(searchQuery.trim())}`);
-        }
-    };
 
     return (
         <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/98 backdrop-blur-md supports-[backdrop-filter]:bg-background/80">
@@ -55,22 +48,7 @@ export function Navbar() {
                 {/* Desktop Nav - Centered (Nav Links or Search Bar) */}
                 <div className="hidden md:flex items-center absolute left-1/2 transform -translate-x-1/2">
                     {isScrolled ? (
-                        <form onSubmit={handleSearchSubmit} className="relative flex items-center w-[500px]">
-                            <Input
-                                type="text"
-                                placeholder="Search for a destination or experience..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="h-10 pl-4 pr-12 rounded-full border-border bg-muted/50 shadow-sm focus:bg-background transition-all text-sm"
-                            />
-                            <Button
-                                type="submit"
-                                size="icon"
-                                className="absolute right-1 h-8 w-8 rounded-full bg-primary hover:bg-ocean-600 text-white shadow-none"
-                            >
-                                <Search className="h-3.5 w-3.5" strokeWidth={2} />
-                            </Button>
-                        </form>
+                        <SearchAutocomplete />
                     ) : (
                         <nav className="flex items-center space-x-10">
                             {navLinks.map((link) => (
@@ -79,8 +57,8 @@ export function Navbar() {
                                     href={link.href}
                                     className={cn(
                                         "relative py-1 transition-colors uppercase font-medium text-xs tracking-widest hover:text-foreground",
-                                        pathname === link.href 
-                                            ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-foreground" 
+                                        pathname === link.href
+                                            ? "text-foreground after:absolute after:bottom-0 after:left-0 after:right-0 after:h-px after:bg-foreground"
                                             : "text-foreground/50"
                                     )}
                                 >

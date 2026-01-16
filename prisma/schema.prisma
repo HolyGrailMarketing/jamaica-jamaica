@@ -32,6 +32,7 @@ model Listing {
 
   bookings  BookingRequest[]
   favorites Favorite[]
+  reviews   Review[]
 }
 
 model BookingRequest {
@@ -59,4 +60,14 @@ model Favorite {
   createdAt DateTime @default(now())
 
   @@unique([deviceId, listingId])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  listingId   String
+  listing     Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  authorName  String
+  rating      Int      // 1-5
+  comment     String
+  createdAt   DateTime @default(now())
 }

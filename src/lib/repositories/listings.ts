@@ -130,6 +130,27 @@ export const listingsRepository = {
         });
         return listings.map(l => l.parish);
     },
+    async getSearchSuggestions(query: string, limit = 5) {
+        if (!query) return [];
+        return prisma.listing.findMany({
+            where: {
+                OR: [
+                    { title: { contains: query, mode: 'insensitive' } },
+                    { parish: { contains: query, mode: 'insensitive' } },
+                    { locationText: { contains: query, mode: 'insensitive' } },
+                ],
+            },
+            select: { id: true, title: true, category: true, parish: true, images: true },
+            take: limit,
+        });
+    },
+    async getReviews(listingId: string, limit = 6) {
+        return prisma.review.findMany({
+            where: { listingId },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+        });
+    },
 };
 
 // Helper to parse JSON fields

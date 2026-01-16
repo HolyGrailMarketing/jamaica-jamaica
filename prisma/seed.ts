@@ -1,3 +1,4 @@
+// This will be full file content rewritten
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -73,9 +74,39 @@ const RESTAURANTS = [
     { title: 'Strawberry Hill', parish: 'St. Andrew', locationText: 'Blue Mountains', description: 'Elegant mountain dining with panoramic views of Kingston. Farm-fresh ingredients, award-winning cuisine.', rating: 4.9, reviewsCount: 234, priceFrom: 75, amenities: ['Mountain Views', 'Sunday Brunch', 'Fine Dining', 'Reservations Required'], included: ['Welcome cocktail', 'Coffee service'], featured: true },
 ];
 
+const SAMPLE_REVIEWS = [
+    { author: 'Sarah Mitchell', comment: 'Absolutely amazing experience! The views were breathtaking and the service was top notch.', rating: 5 },
+    { author: 'James Wilson', comment: 'Great place, would definitely recommend. A bit pricey but worth it.', rating: 4 },
+    { author: 'Maria Garcia', comment: 'Had a wonderful time with my family. The kids loved it!', rating: 5 },
+    { author: 'David Chen', comment: 'Good experience overall. One star off because it was a bit crowded.', rating: 4 },
+    { author: 'Emma Thompson', comment: 'Highlight of our trip to Jamaica! Can\'t wait to come back.', rating: 5 },
+    { author: 'Michael Brown', comment: 'Authentic and beautiful. The staff went above and beyond.', rating: 5 },
+    { author: 'Lisa Anderson', comment: 'Very clean and organized. Food was delicious too.', rating: 4 },
+    { author: 'Robert Taylor', comment: 'A hidden gem. So peaceful and relaxing.', rating: 5 },
+];
+
+async function seedReviews(listingId: string) {
+    const numReviews = Math.floor(Math.random() * 4) + 2; // 2-5 reviews
+    const shuffled = [...SAMPLE_REVIEWS].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, numReviews);
+
+    for (const review of selected) {
+        await prisma.review.create({
+            data: {
+                listingId,
+                authorName: review.author,
+                rating: review.rating,
+                comment: review.comment,
+                createdAt: new Date(Date.now() - Math.floor(Math.random() * 10000000000)), // Random date in past
+            },
+        });
+    }
+}
+
 async function main() {
     console.log('🌴 Seeding Jamaica Jamaica database...');
 
+    await prisma.review.deleteMany(); // Clear reviews first
     await prisma.favorite.deleteMany();
     await prisma.bookingRequest.deleteMany();
     await prisma.listing.deleteMany();
@@ -83,7 +114,7 @@ async function main() {
     for (let i = 0; i < STAYS.length; i++) {
         const stay = STAYS[i];
         const coords = PARISH_COORDS[stay.parish];
-        await prisma.listing.create({
+        const listing = await prisma.listing.create({
             data: {
                 category: 'STAY',
                 title: stay.title,
@@ -101,13 +132,14 @@ async function main() {
                 featured: stay.featured,
             },
         });
+        await seedReviews(listing.id);
     }
     console.log(`✅ Created ${STAYS.length} stays`);
 
     for (let i = 0; i < TOURS.length; i++) {
         const tour = TOURS[i];
         const coords = PARISH_COORDS[tour.parish];
-        await prisma.listing.create({
+        const listing = await prisma.listing.create({
             data: {
                 category: 'TOUR',
                 title: tour.title,
@@ -125,13 +157,14 @@ async function main() {
                 featured: tour.featured,
             },
         });
+        await seedReviews(listing.id);
     }
     console.log(`✅ Created ${TOURS.length} tours`);
 
     for (let i = 0; i < RESTAURANTS.length; i++) {
         const restaurant = RESTAURANTS[i];
         const coords = PARISH_COORDS[restaurant.parish];
-        await prisma.listing.create({
+        const listing = await prisma.listing.create({
             data: {
                 category: 'RESTAURANT',
                 title: restaurant.title,
@@ -149,6 +182,7 @@ async function main() {
                 featured: restaurant.featured,
             },
         });
+        await seedReviews(listing.id);
     }
     console.log(`✅ Created ${RESTAURANTS.length} restaurants`);
 

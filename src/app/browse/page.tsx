@@ -5,6 +5,7 @@ import { FilterSidebar } from '@/components/features/FilterSidebar';
 import { SortSelect } from '@/components/features/SortSelect';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { Map } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -104,14 +105,22 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
               </p>
             </div>
 
-            <SortSelect currentSort={params.sort} />
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="hidden sm:flex items-center gap-2" asChild>
+                <Link href="/browse/map">
+                  <Map className="w-4 h-4" />
+                  Map View
+                </Link>
+              </Button>
+              <SortSelect currentSort={params.sort} />
+            </div>
           </div>
 
           {parsedListings.length > 0 ? (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {parsedListings.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} showDistance />
+                {parsedListings.map((listing, index) => (
+                  <ListingCard key={listing.id} listing={listing} showDistance index={index} />
                 ))}
               </div>
 
