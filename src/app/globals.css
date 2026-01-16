@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Luxury Color Palette: Blues, Browns, White, Black */
+
+    /* Backgrounds - Crisp white with warmth */
+    --background: 40 25% 99%;
+    --foreground: 0 0% 5%;
+
+    /* Primary: Caribbean Turquoise Blue */
+    --primary: 192 85% 43%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Warm Sand/Cream */
+    --secondary: 38 35% 95%;
+    --secondary-foreground: 25 30% 15%;
+
+    /* Muted: Elegant warm gray */
+    --muted: 40 15% 96%;
+    --muted-foreground: 25 8% 50%;
+
+    /* Accent: Rich Espresso Brown */
+    --accent: 25 45% 25%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs - Refined, subtle */
+    --border: 40 15% 90%;
+    --input: 40 15% 90%;
+    --ring: 192 85% 43%;
+
+    /* Radius - Slightly more refined */
+    --radius: 0.375rem;
+
+    /* Card & Popover */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 5%;
+
+    /* Extended Blue Palette - Caribbean Ocean Hues */
+    --blue-50: 190 75% 97%;
+    --blue-100: 190 70% 92%;
+    --blue-200: 188 65% 82%;
+    --blue-300: 187 70% 68%;
+    --blue-400: 190 80% 52%;
+    --blue-500: 192 85% 43%;
+    --blue-600: 194 90% 36%;
+    --blue-700: 196 92% 28%;
+    --blue-800: 198 95% 20%;
+    --blue-900: 200 97% 14%;
+
+    /* Extended Brown Palette */
+    --brown-50: 38 35% 97%;
+    --brown-100: 38 30% 94%;
+    --brown-200: 35 28% 85%;
+    --brown-300: 30 25% 70%;
+    --brown-400: 28 30% 50%;
+    --brown-500: 25 45% 25%;
+    --brown-600: 22 50% 20%;
+    --brown-700: 20 55% 15%;
+    --brown-800: 18 60% 10%;
+    --brown-900: 15 65% 6%;
+  }
+
+  .dark {
+    --background: 20 15% 6%;
+    --foreground: 40 15% 96%;
+
+    --primary: 190 75% 48%;
+    --primary-foreground: 0 0% 5%;
+
+    --secondary: 25 18% 15%;
+    --secondary-foreground: 40 15% 96%;
+
+    --muted: 25 12% 12%;
+    --muted-foreground: 38 12% 55%;
+
+    --accent: 30 40% 45%;
+    --accent-foreground: 0 0% 5%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 25 12% 18%;
+    --input: 25 12% 18%;
+    --ring: 190 75% 48%;
+
+    --card: 22 15% 10%;
+    --card-foreground: 40 15% 96%;
+    --popover: 22 15% 10%;
+    --popover-foreground: 40 15% 96%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jamaica Jamaica
 
-## Getting Started
+A functional MVP web app for browsing Jamaican listings (stays, tours, restaurants), with booking requests and favorites management.
 
-First, run the development server:
+## Tech Stack
+
+- **Next.js 14** (App Router)
+- **TypeScript**
+- **Tailwind CSS**
+- **Prisma + SQLite** for persistence
+- **Zod** for validation
+
+## Quick Start
 
 ```bash
+# Install dependencies
+npm install
+
+# Set up database
+npm run db:push
+npm run db:seed
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Available Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run db:push` | Push Prisma schema to database |
+| `npm run db:seed` | Seed database with sample data |
+| `npm run db:studio` | Open Prisma Studio (DB GUI) |
+| `npm run db:reset` | Reset database and reseed |
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+### Home Page (`/`)
+- 360-style immersive hero with hover interaction
+- Featured sections for Stays, Tours, Restaurants
+- Search functionality
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Browse (`/browse`)
+- Filter by category, parish, price range, rating
+- Sort by recommended, rating, price
+- Pagination
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Listing Details (`/listing/[id]`)
+- Image gallery
+- Full listing details with amenities/rules/included
+- Favorite toggle
+- Booking CTA
 
-## Deploy on Vercel
+### Booking Flow (`/booking/[listingId]`)
+- Category-adaptive form (stay vs tour/restaurant)
+- Zod validation
+- Confirmation page with booking reference
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Favorites (`/favorites`)
+- Device-based favorites using cookies
+- Persistent across sessions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Admin (`/admin`)
+- CRUD for listings
+- Toggle featured status
+- Demo only (no auth)
+
+## Database
+
+Uses SQLite for simplicity. The database file is stored at `prisma/dev.db`.
+
+### Models
+- **Listing**: Stays, Tours, Restaurants
+- **BookingRequest**: Booking requests from users
+- **Favorite**: User favorites (by device ID)
+
+## Environment Variables
+
+Create a `.env` file:
+
+```
+DATABASE_URL="file:./dev.db"
+```
+
+## Production Deployment
+
+```bash
+npm run build
+npm run start
+```
+
+For production, consider migrating to PostgreSQL or another production database.
+
+## License
+
+MIT
