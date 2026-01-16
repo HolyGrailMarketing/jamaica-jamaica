@@ -108,3 +108,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide Default Pannellum Loader */
+.pnlm-load-box {
+  display: none !important;
+}
+
+.pnlm-lbox {
+  display: none !important;
+}
+
+.pnlm-loading {
+  display: none !important;
+}

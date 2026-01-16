@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Star, ArrowRight, Home, Map, UtensilsCrossed, Waves, Maximize2, Volume2, Plus, ArrowUpRight, RotateCcw } from 'lucide-react';
+import { MapPin, Star, ArrowRight, Home, Map, UtensilsCrossed, Waves, Maximize2, Volume2, Plus, ArrowUpRight, RotateCcw, Compass } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 // @ts-ignore
@@ -19,6 +19,7 @@ export function Hero360() {
     const panoRef = useRef<HTMLDivElement>(null);
     const [viewer, setViewer] = useState<any>(null);
     const [isHoveringText, setIsHoveringText] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         // Dynamic import to avoid SSR issues with Pannellum
@@ -38,6 +39,11 @@ export function Hero360() {
                     pitch: 0,
                     yaw: 180,
                 });
+
+                p.on('load', () => {
+                    setIsLoading(false);
+                });
+
                 setViewer(p);
             }
         };
@@ -55,6 +61,24 @@ export function Hero360() {
             {/* 360 Viewer Container */}
             <div ref={panoRef} className="w-full h-full absolute inset-0 z-0" />
 
+            {/* Loading Overlay */}
+            <div
+                className={cn(
+                    "absolute inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 transition-opacity duration-1000",
+                    isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
+                )}
+            >
+                <div className="relative">
+                    <Compass className="w-16 h-16 text-white/20 animate-[spin_4s_linear_infinite]" strokeWidth={1} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
+                    </div>
+                </div>
+                <p className="mt-6 text-white/60 text-[10px] font-medium tracking-[0.3em] uppercase animate-pulse">
+                    Loading Experience
+                </p>
+            </div>
+
             {/* Overlay Gradient for Text Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-10" />
 
@@ -66,14 +90,14 @@ export function Hero360() {
                 )}
             >
                 <div className="flex flex-col items-center text-center">
-                    <div 
+                    <div
                         className="bg-white/10 backdrop-blur-md px-5 py-1.5 rounded-sm mb-6 border border-white/20 pointer-events-auto"
                         onMouseEnter={() => setIsHoveringText(true)}
                         onMouseLeave={() => setIsHoveringText(false)}
                     >
                         <span className="text-white text-[10px] font-medium tracking-[0.2em] uppercase">Featured Stay</span>
                     </div>
-                    <h1 
+                    <h1
                         className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-2 drop-shadow-lg tracking-wide pointer-events-auto"
                         onMouseEnter={() => setIsHoveringText(true)}
                         onMouseLeave={() => setIsHoveringText(false)}
