@@ -106,7 +106,7 @@ export function Hero360() {
                     </h1>
 
                     {/* Pills Row */}
-                    <div className="flex items-center gap-3 mt-10">
+                    <div className="flex items-center gap-2 md:gap-3 mt-8 md:mt-10 flex-wrap justify-center px-4">
                         {[
                             { icon: Home, label: 'Stays' },
                             { icon: Map, label: 'Tours' },
@@ -115,9 +115,9 @@ export function Hero360() {
                         ].map((item) => (
                             <button
                                 key={item.label}
-                                className="flex items-center gap-2 px-5 py-2.5 rounded-sm bg-black/30 hover:bg-black/50 backdrop-blur-md border border-white/10 text-white transition-all text-xs font-medium tracking-wider uppercase pointer-events-auto"
+                                className="flex items-center gap-1.5 md:gap-2 px-3 md:px-5 py-2 md:py-2.5 rounded-sm bg-black/30 hover:bg-black/50 backdrop-blur-md border border-white/10 text-white transition-all text-[10px] md:text-xs font-medium tracking-wider uppercase pointer-events-auto whitespace-nowrap"
                             >
-                                <item.icon className="w-4 h-4" strokeWidth={1.5} />
+                                <item.icon className="w-3 h-3 md:w-4 md:h-4" strokeWidth={1.5} />
                                 {item.label}
                             </button>
                         ))}
@@ -146,9 +146,9 @@ export function Hero360() {
                 </Button>
             </div>
 
-            {/* Featured Listing Card (Anchored Bottom Right, slightly overlapping hero) */}
-            <div className="absolute bottom-0 right-0 z-30 m-0 md:m-8 translate-y-1/2 md:translate-y-0 w-full md:w-auto">
-                <div className="bg-white rounded-xl shadow-2xl p-5 md:max-w-sm w-full border border-gray-100 relative top-16 md:top-0">
+            {/* Featured Listing Card (Anchored Bottom Right, slightly overlapping hero) - Hidden on mobile */}
+            <div className="hidden md:block absolute bottom-0 right-0 z-30 m-4 lg:m-8 translate-y-0 w-auto max-w-[calc(100vw-2rem)] lg:max-w-sm">
+                <div className="bg-white rounded-xl shadow-2xl p-4 lg:p-5 w-full border border-gray-100">
                     <Badge className="bg-primary hover:bg-ocean-600 text-white border-0 mb-3 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
                         360° Photo
                     </Badge>

@@ -121,3 +121,14 @@
 .pnlm-loading {
   display: none !important;
 }
+
+/* Hide scrollbar but allow scrolling */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
