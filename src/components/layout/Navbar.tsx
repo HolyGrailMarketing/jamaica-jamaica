@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Menu, X, Heart } from 'lucide-react';
+import { Menu, X, Heart, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SearchAutocomplete } from '@/components/features/SearchAutocomplete';
 
@@ -76,6 +76,9 @@ export function Navbar() {
                             <Heart className="h-5 w-5" strokeWidth={1.5} />
                         </Link>
                     </Button>
+                    <Button variant="ghost" size="icon" className="text-foreground/60 hover:text-foreground">
+                        <User className="h-5 w-5" strokeWidth={1.5} />
+                    </Button>
                     <Button className="uppercase text-xs tracking-widest font-medium px-6 h-10">
                         List your place
                     </Button>
@@ -118,6 +121,13 @@ export function Navbar() {
                         >
                             Favorites
                         </Link>
+                        <button
+                            className="px-2 py-2 text-foreground/50 hover:text-foreground uppercase text-xs tracking-widest font-medium flex items-center gap-2"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <User className="h-4 w-4" strokeWidth={1.5} />
+                            Sign In
+                        </button>
                     </nav>
                 </div>
             )}

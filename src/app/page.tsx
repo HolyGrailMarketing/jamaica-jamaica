@@ -1,38 +1,49 @@
 import { listingsRepository, parseListingJson } from '@/lib/repositories/listings';
-import { CategoryRow } from '@/components/layout/CategoryRow';
-import { Hero360 } from '@/components/home/Hero360';
-import { FeaturedStayDetails } from '@/components/home/FeaturedStayDetails';
-import { PlacesToStayRow } from '@/components/home/PlacesToStayRow';
-import { ToursRow } from '@/components/home/ToursRow';
+import { HomeContent } from '@/components/home/HomeContent';
+import { FeaturedListing } from '@/components/home/Hero360';
+import { CategoryType } from '@/components/layout/CategoryRow';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
-  const [stays, tours] = await Promise.all([
+  // Fetch listings for each category
+  const [stays, tours, restaurants, beaches] = await Promise.all([
     listingsRepository.getByCategory('STAY', 4),
     listingsRepository.getByCategory('TOUR', 3),
+    listingsRepository.getByCategory('RESTAURANT', 1),
+    listingsRepository.getByCategory('BEACH', 1),
   ]);
 
   const parsedStays = stays.map(parseListingJson);
   const parsedTours = tours.map(parseListingJson);
 
+  // Get featured listing for each category (first featured or first available)
+  const getFeatured = (listings: any[]): FeaturedListing | null => {
+    const featured = listings.find(l => l.featured) || listings[0];
+    if (!featured) return null;
+    const parsed = parseListingJson(featured);
+    return {
+      id: parsed.id,
+      title: parsed.title,
+      parish: parsed.parish,
+      rating: parsed.rating,
+      description: parsed.description || `Explore this amazing ${parsed.category.toLowerCase()} in ${parsed.parish}.`,
+      panoramaUrl: undefined, // Could add 360 URLs to listing data later
+    };
+  };
+
+  const featuredByCategory: Record<CategoryType, FeaturedListing | null> = {
+    'STAY': getFeatured(stays),
+    'TOUR': getFeatured(tours),
+    'RESTAURANT': getFeatured(restaurants),
+    'BEACH': getFeatured(beaches),
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      {/* Category Navigation */}
-      <CategoryRow />
-
-      {/* Hero Section */}
-      <Hero360 />
-
-      {/* Featured Details */}
-      <FeaturedStayDetails />
-
-      {/* Listings */}
-      <PlacesToStayRow listings={parsedStays} />
-      <ToursRow listings={parsedTours} />
-
-      {/* Footer (Placeholder usually, but keeping page clean as per request scope) */}
-      <div className="h-20" />
-    </div>
+    <HomeContent 
+      stays={parsedStays} 
+      tours={parsedTours} 
+      featuredByCategory={featuredByCategory}
+    />
   );
 }

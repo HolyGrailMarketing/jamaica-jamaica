@@ -40,8 +40,8 @@ function PlaceItem({ listing }: { listing: ParsedListing }) {
 
     return (
         <div className="group cursor-pointer">
-            {/* Image Card */}
-            <div className="relative aspect-[4/3] rounded overflow-hidden mb-4 bg-muted">
+            {/* Image Card - 5:3 aspect ratio on desktop for more visible listings */}
+            <div className="relative aspect-[4/3] md:aspect-[5/3] rounded overflow-hidden mb-4 bg-muted">
                 {isLoading && <ImageSkeleton className="absolute inset-0 z-10" />}
                 <Image
                     src={listing.images[0] || '/placeholder.jpg'}
@@ -97,7 +97,7 @@ export function PlacesToStayRow({ listings }: PlacesToStayRowProps) {
         <section className="container mx-auto max-w-[1400px] px-6 py-16">
             <div className="flex justify-between items-end mb-10">
                 <div>
-                    <p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-2">Curated Collection</p>
+                    <p className="text-xs font-medium tracking-[0.2em] uppercase text-muted-foreground mb-2">Featured Places</p>
                     <h2 className="text-3xl md:text-4xl font-light text-foreground tracking-tight">Places to Stay</h2>
                 </div>
                 <Link href="/browse?category=STAY" className="text-xs font-medium tracking-widest uppercase text-foreground/60 hover:text-foreground transition-colors border-b border-foreground/20 hover:border-foreground pb-1">

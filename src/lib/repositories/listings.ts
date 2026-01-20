@@ -1,7 +1,7 @@
 import prisma from '@/lib/db';
 import { Listing } from '@prisma/client';
 
-export type ListingCategory = 'STAY' | 'TOUR' | 'RESTAURANT';
+export type ListingCategory = 'STAY' | 'TOUR' | 'RESTAURANT' | 'BEACH';
 
 export interface ListingFilters {
     category?: ListingCategory;

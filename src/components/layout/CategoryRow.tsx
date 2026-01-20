@@ -5,19 +5,35 @@ import { Home, Map, UtensilsCrossed, Waves } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
+export type CategoryType = 'STAY' | 'RESTAURANT' | 'TOUR' | 'BEACH';
+
 interface CategoryItemProps {
     icon: React.ElementType;
     label: string;
     active?: boolean;
+    onClick?: () => void;
 }
 
-function CategoryItem({ icon: Icon, label, active }: CategoryItemProps) {
+interface CategoryRowProps {
+    selectedCategory?: CategoryType;
+    onCategoryChange?: (category: CategoryType) => void;
+}
+
+const categories: { icon: React.ElementType; label: string; value: CategoryType }[] = [
+    { icon: Home, label: 'Stays', value: 'STAY' },
+    { icon: UtensilsCrossed, label: 'Restaurants', value: 'RESTAURANT' },
+    { icon: Map, label: 'Tours', value: 'TOUR' },
+    { icon: Waves, label: 'Beaches', value: 'BEACH' },
+];
+
+function CategoryItem({ icon: Icon, label, active, onClick }: CategoryItemProps) {
     return (
         <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={onClick}
             className={cn(
-                "flex items-center gap-1.5 md:gap-2 px-2 md:px-4 py-2 md:py-3 cursor-pointer transition-colors border-b-2 flex-shrink-0",
+                "flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-4 py-2 md:py-3 cursor-pointer transition-colors border-b-2 flex-1",
                 active
                     ? "border-primary text-primary"
                     : "border-transparent text-gray-600 hover:text-black hover:bg-gray-50"
@@ -28,19 +44,25 @@ function CategoryItem({ icon: Icon, label, active }: CategoryItemProps) {
     );
 }
 
-export function CategoryRow() {
+export function CategoryRow({ selectedCategory = 'STAY', onCategoryChange }: CategoryRowProps) {
     return (
         <div className="border-b border-gray-200 bg-white">
             <div className="container mx-auto max-w-[1400px] px-6">
-                {/* Categories - Scrollable on mobile */}
-                <div className="flex items-center overflow-x-auto scrollbar-hide -mx-6 px-6">
-                    <CategoryItem icon={Home} label="Stays" active />
-                    <div className="h-4 w-px bg-gray-200 mx-1 flex-shrink-0" />
-                    <CategoryItem icon={Map} label="Tours" />
-                    <div className="h-4 w-px bg-gray-200 mx-1 flex-shrink-0" />
-                    <CategoryItem icon={UtensilsCrossed} label="Restaurants" />
-                    <div className="h-4 w-px bg-gray-200 mx-1 flex-shrink-0" />
-                    <CategoryItem icon={Waves} label="Beaches" />
+                {/* Categories - Full width, evenly spaced */}
+                <div className="flex items-center justify-between w-full">
+                    {categories.map((cat, index) => (
+                        <div key={cat.value} className="contents">
+                            <CategoryItem 
+                                icon={cat.icon} 
+                                label={cat.label} 
+                                active={selectedCategory === cat.value}
+                                onClick={() => onCategoryChange?.(cat.value)}
+                            />
+                            {index < categories.length - 1 && (
+                                <div className="h-4 w-px bg-gray-200 flex-shrink-0" />
+                            )}
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
