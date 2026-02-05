@@ -33,7 +33,7 @@ function hashString(str: string): number {
 
 function PlaceItem({ listing }: { listing: ParsedListing }) {
     const [isLoading, setIsLoading] = useState(true);
-    
+
     // Deterministic values based on listing ID
     const badgeType = hashString(listing.id) % 2 === 0 ? '360°' : 'Gallery';
     const distance = (hashString(listing.id) % 50) + 10;

@@ -23,6 +23,7 @@ export interface FeaturedListing {
     rating: number;
     description: string;
     panoramaUrl?: string;
+    amenities?: string[];
 }
 
 interface Hero360Props {
@@ -41,13 +42,70 @@ const defaultPanorama = 'https://dl.polyhaven.org/file/ph-assets/HDRIs/extra/Ton
 
 export function Hero360({ category = 'STAY', featuredListing }: Hero360Props) {
     const panoRef = useRef<HTMLDivElement>(null);
+    const textRef = useRef<HTMLDivElement>(null);
     const [viewer, setViewer] = useState<any>(null);
     const [isHoveringText, setIsHoveringText] = useState(false);
+    const [isInteractingWith360, setIsInteractingWith360] = useState(false);
+    const [isHoveringCard, setIsHoveringCard] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
     const panoramaUrl = featuredListing?.panoramaUrl || defaultPanorama;
 
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+    // Detect 360 interaction for dynamic card opacity
     useEffect(() => {
+        const el = panoRef.current;
+        if (!el) return;
+        const onDown = () => setIsInteractingWith360(true);
+        const onUp = () => setIsInteractingWith360(false);
+        el.addEventListener('mousedown', onDown);
+        el.addEventListener('touchstart', onDown);
+        window.addEventListener('mouseup', onUp);
+        window.addEventListener('touchend', onUp);
+        return () => {
+            el.removeEventListener('mousedown', onDown);
+            el.removeEventListener('touchstart', onDown);
+            window.removeEventListener('mouseup', onUp);
+            window.removeEventListener('touchend', onUp);
+        };
+    }, []);
+
+    // Fetch the image as a blob first to avoid XHR/CORS issues in Pannellum
+    useEffect(() => {
+        let active = true;
+        let url: string | null = null;
+
+        const loadPanorama = async () => {
+            setIsLoading(true);
+            try {
+                // Use our internal proxy to avoid CORS/Network issues with 3rd party providers
+                const proxyUrl = `/api/proxy-image?url=${encodeURIComponent(panoramaUrl)}`;
+                const response = await fetch(proxyUrl);
+
+                if (!response.ok) throw new Error('Failed to fetch panorama');
+                const blob = await response.blob();
+                if (active) {
+                    url = URL.createObjectURL(blob);
+                    setBlobUrl(url);
+                }
+            } catch (err) {
+                console.error('Error loading panorama:', err);
+                setIsLoading(false); // Stop loading on error
+            }
+        };
+
+        loadPanorama();
+
+        return () => {
+            active = false;
+            if (url) URL.revokeObjectURL(url);
+        };
+    }, [panoramaUrl]);
+
+    useEffect(() => {
+        if (!blobUrl) return;
+
         // Dynamic import to avoid SSR issues with Pannellum
         const initPannellum = async () => {
             if (typeof window !== 'undefined' && panoRef.current) {
@@ -61,40 +119,67 @@ export function Hero360({ category = 'STAY', featuredListing }: Hero360Props) {
                 }
 
                 setIsLoading(true);
-                
+
                 // We need to require pannellum here to ensure window object exists
                 require('pannellum');
 
-                const p = window.pannellum.viewer(panoRef.current, {
-                    type: 'equirectangular',
-                    panorama: panoramaUrl,
-                    autoLoad: true,
-                    compass: false,
-                    showControls: false, // Custom controls
-                    mouseZoom: false,
-                    hfov: 100,
-                    pitch: 0,
-                    yaw: 180,
-                });
+                try {
+                    const p = window.pannellum.viewer(panoRef.current, {
+                        type: 'equirectangular',
+                        panorama: blobUrl,
+                        autoLoad: true,
+                        compass: false,
+                        showControls: false, // Custom controls
+                        mouseZoom: false,
+                        hfov: 100,
+                        pitch: 0,
+                        yaw: 180,
+                    });
 
-                p.on('load', () => {
+                    p.on('load', () => {
+                        setIsLoading(false);
+                    });
+
+                    p.on('error', (err: any) => {
+                        console.error('Pannellum error:', err);
+                        setIsLoading(false);
+                    });
+
+                    setViewer(p);
+                } catch (err) {
+                    console.error('Error initializing pannellum:', err);
                     setIsLoading(false);
-                });
-
-                setViewer(p);
+                }
             }
         };
 
         initPannellum();
 
         return () => {
-            // proper cleanup if possible, though Pannellum destroy might be tricky in React 18 strict mode
-            // relying on clean unmount
+            // proper cleanup if possible
         };
-    }, [panoramaUrl]);
+    }, [blobUrl]);
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+        if (textRef.current) {
+            const rect = textRef.current.getBoundingClientRect();
+            // Add some padding to the detection area for better UX
+            const padding = 20;
+            const isOver = (
+                e.clientX >= rect.left - padding &&
+                e.clientX <= rect.right + padding &&
+                e.clientY >= rect.top - padding &&
+                e.clientY <= rect.bottom + padding
+            );
+            setIsHoveringText(isOver);
+        }
+    };
 
     return (
-        <div className="relative w-full h-[65vh] md:h-[70vh] bg-gray-900 overflow-hidden group">
+        <div
+            className="relative w-full h-[65vh] md:h-[70vh] bg-gray-900 overflow-hidden group"
+            onMouseMoveCapture={handleMouseMove}
+        >
             {/* 360 Viewer Container */}
             <div ref={panoRef} className="w-full h-full absolute inset-0 z-0" />
 
@@ -119,26 +204,21 @@ export function Hero360({ category = 'STAY', featuredListing }: Hero360Props) {
             {/* Overlay Gradient for Text Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none z-10" />
 
-            {/* Center Text */}
+            {/* Center Text - pointer-events-none always, visibility controlled by mouse position */}
             <div
                 className={cn(
-                    "absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none cursor-default transition-all duration-500",
+                    "absolute inset-0 z-20 flex flex-col items-center justify-center transition-all duration-500 pointer-events-none",
                     isHoveringText ? "opacity-0" : "opacity-100"
                 )}
             >
-                <div className="flex flex-col items-center text-center cursor-default">
-                    <div
-                        className="bg-white/10 backdrop-blur-md px-5 py-1.5 rounded-sm mb-6 border border-white/20 pointer-events-auto cursor-default"
-                        onMouseEnter={() => setIsHoveringText(true)}
-                        onMouseLeave={() => setIsHoveringText(false)}
-                    >
-                        <span className="text-white text-[10px] font-medium tracking-[0.2em] uppercase cursor-default">{categoryLabels[category]}</span>
+                <div
+                    ref={textRef}
+                    className="flex flex-col items-center text-center"
+                >
+                    <div className="bg-white/10 backdrop-blur-md px-5 py-1.5 rounded-sm mb-6 border border-white/20">
+                        <span className="text-white text-[10px] font-medium tracking-[0.2em] uppercase">{categoryLabels[category]}</span>
                     </div>
-                    <h1
-                        className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-2 drop-shadow-lg tracking-wide pointer-events-auto cursor-default"
-                        onMouseEnter={() => setIsHoveringText(true)}
-                        onMouseLeave={() => setIsHoveringText(false)}
-                    >
+                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-white mb-2 drop-shadow-lg tracking-wide">
                         Explore in 360°
                     </h1>
                 </div>
@@ -165,10 +245,17 @@ export function Hero360({ category = 'STAY', featuredListing }: Hero360Props) {
                 </Button>
             </div>
 
-            {/* Featured Listing Card (Anchored Bottom Right, slightly overlapping hero) - Hidden on mobile */}
+            {/* Featured Listing Card - Dynamic opacity: default semi-transparent, opaque when interacting with 360, most opaque on hover */}
             {featuredListing && (
-                <div className="hidden md:block absolute bottom-0 right-0 z-30 m-4 lg:m-8 translate-y-0 w-auto max-w-[calc(100vw-2rem)] lg:max-w-sm">
-                    <div className="bg-white/75 backdrop-blur-md rounded-xl shadow-2xl p-4 lg:p-5 w-full border border-white/50">
+                <div
+                    className="hidden md:block absolute bottom-0 right-0 z-30 m-4 lg:m-8 translate-y-0 w-auto max-w-[calc(100vw-2rem)] lg:max-w-sm"
+                    onMouseEnter={() => setIsHoveringCard(true)}
+                    onMouseLeave={() => setIsHoveringCard(false)}
+                >
+                    <div className={cn(
+                        "backdrop-blur-md rounded-xl shadow-2xl p-4 lg:p-5 w-full border border-white/50 transition-all duration-300",
+                        isHoveringCard ? "bg-white/95" : isInteractingWith360 ? "bg-white/10" : "bg-white/60"
+                    )}>
                         <Badge className="bg-primary hover:bg-ocean-600 text-white border-0 mb-3 rounded-md px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
                             360° Photo
                         </Badge>
@@ -190,6 +277,16 @@ export function Hero360({ category = 'STAY', featuredListing }: Hero360Props) {
                             ))}
                             <span className="font-bold text-gray-900 ml-1">{featuredListing.rating.toFixed(1)}</span>
                         </div>
+
+                        {featuredListing.amenities && featuredListing.amenities.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-3">
+                                {featuredListing.amenities.slice(0, 5).map((tag) => (
+                                    <span key={tag} className="px-2 py-0.5 bg-gray-100/80 rounded text-[10px] font-medium text-gray-700">
+                                        {tag}
+                                    </span>
+                                ))}
+                            </div>
+                        )}
 
                         <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-2">
                             {featuredListing.description}

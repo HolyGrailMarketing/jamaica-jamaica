@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { CategoryRow, CategoryType } from '@/components/layout/CategoryRow';
 import { Hero360, FeaturedListing } from '@/components/home/Hero360';
 import { FeaturedStayDetails } from '@/components/home/FeaturedStayDetails';
-import { PlacesToStayRow } from '@/components/home/PlacesToStayRow';
-import { ToursRow } from '@/components/home/ToursRow';
+import { ListingsGrid } from '@/components/home/ListingsGrid';
 import { Listing } from '@prisma/client';
 
 type ParsedListing = Omit<Listing, 'images' | 'amenities' | 'rules' | 'included'> & {
@@ -15,13 +14,24 @@ type ParsedListing = Omit<Listing, 'images' | 'amenities' | 'rules' | 'included'
     included: string[] | null;
 };
 
+const categoryHeadings: Record<CategoryType, { label: string; title: string }> = {
+    STAY: { label: 'Featured Places', title: 'Places to Stay' },
+    RESTAURANT: { label: 'Featured Dining', title: 'Restaurants' },
+    TOUR: { label: 'Experiences', title: 'Tours & Activities' },
+    BEACH: { label: 'Featured Beaches', title: 'Beaches' },
+};
+
 interface HomeContentProps {
-    stays: ParsedListing[];
-    tours: ParsedListing[];
+    listingsByCategory: Record<CategoryType, ParsedListing[]>;
     featuredByCategory: Record<CategoryType, FeaturedListing | null>;
+    featuredSlideshowByCategory: Record<CategoryType, ParsedListing[]>;
 }
 
-export function HomeContent({ stays, tours, featuredByCategory }: HomeContentProps) {
+export function HomeContent({
+    listingsByCategory,
+    featuredByCategory,
+    featuredSlideshowByCategory,
+}: HomeContentProps) {
     const [selectedCategory, setSelectedCategory] = useState<CategoryType>('STAY');
 
     const handleCategoryChange = (category: CategoryType) => {
@@ -29,29 +39,31 @@ export function HomeContent({ stays, tours, featuredByCategory }: HomeContentPro
     };
 
     const currentFeatured = featuredByCategory[selectedCategory];
+    const currentListings = listingsByCategory[selectedCategory] || [];
+    const currentSlideshow = featuredSlideshowByCategory[selectedCategory] || [];
+    const headings = categoryHeadings[selectedCategory];
 
     return (
         <div className="flex flex-col min-h-screen bg-background">
-            {/* Category Navigation */}
-            <CategoryRow 
-                selectedCategory={selectedCategory} 
-                onCategoryChange={handleCategoryChange} 
+            <CategoryRow
+                selectedCategory={selectedCategory}
+                onCategoryChange={handleCategoryChange}
             />
 
-            {/* Hero Section */}
-            <Hero360 
-                category={selectedCategory} 
-                featuredListing={currentFeatured} 
+            <Hero360 category={selectedCategory} featuredListing={currentFeatured} />
+
+            <FeaturedStayDetails
+                listings={currentSlideshow}
+                category={selectedCategory}
+                heading={headings}
             />
 
-            {/* Featured Details */}
-            <FeaturedStayDetails />
+            <ListingsGrid
+                listings={currentListings}
+                category={selectedCategory}
+                heading={headings}
+            />
 
-            {/* Listings */}
-            <PlacesToStayRow listings={stays} />
-            <ToursRow listings={tours} />
-
-            {/* Footer Spacer */}
             <div className="h-20" />
         </div>
     );
