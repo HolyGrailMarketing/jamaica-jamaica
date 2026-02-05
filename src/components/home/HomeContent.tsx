@@ -15,7 +15,7 @@ type ParsedListing = Omit<Listing, 'images' | 'amenities' | 'rules' | 'included'
 };
 
 const categoryHeadings: Record<CategoryType, { label: string; title: string }> = {
-    STAY: { label: 'Featured Places', title: 'Places to Stay' },
+    STAY: { label: 'Featured Places', title: 'Stays' },
     RESTAURANT: { label: 'Featured Dining', title: 'Restaurants' },
     TOUR: { label: 'Experiences', title: 'Tours & Activities' },
     BEACH: { label: 'Featured Beaches', title: 'Beaches' },

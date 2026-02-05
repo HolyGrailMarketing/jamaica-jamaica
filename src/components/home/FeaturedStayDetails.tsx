@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MessageCircle, Star, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -42,6 +42,16 @@ export function FeaturedStayDetails({ listings, category, heading }: FeaturedSta
 
     const goNext = () => setCurrentIndex((i) => (i + 1) % listings.length);
     const goPrev = () => setCurrentIndex((i) => (i - 1 + listings.length) % listings.length);
+
+    useEffect(() => {
+        if (listings.length <= 1) return;
+
+        const interval = setInterval(() => {
+            goNext();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [listings.length]);
 
     return (
         <section className="container mx-auto max-w-[1400px] px-6 py-8 lg:py-10">
